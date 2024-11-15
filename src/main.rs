@@ -22,6 +22,7 @@ enum Command {
 enum Mod {
     Ctrl,
     Alt,
+    Shift,
 }
 
 register_plugin!(State);
@@ -148,6 +149,7 @@ impl State {
         match mod_key {
             Mod::Ctrl => ctrl_keybinding(direction),
             Mod::Alt => alt_keybinding(direction),
+            Mod::Shift => shift_keybinding(direction),
         }
     }
 }
@@ -183,6 +185,21 @@ fn ctrl_keybinding(direction: &Direction) -> String {
     direction.to_string()
 }
 
+fn shift_keybinding(direction: &Direction) -> String {
+    let mut char_vec: Vec<char> = vec![0x1b as char];
+    char_vec.push(0x5b as char);
+    char_vec.push(0x31 as char);
+    char_vec.push(0x3b as char);
+    char_vec.push(0x32 as char);
+    char_vec.push(match direction {
+        Direction::Left => 'D',
+        Direction::Right => 'C',
+        Direction::Up => 'A',
+        Direction::Down => 'B',
+    });
+    char_vec.iter().collect()
+}
+
 fn alt_keybinding(direction: &Direction) -> String {
     let mut char_vec: Vec<char> = vec![0x1b as char];
     char_vec.push(match direction {
@@ -208,6 +225,7 @@ fn string_to_mod(s: &str) -> Option<Mod> {
     match s.to_lowercase().as_str() {
         "ctrl" => Some(Mod::Ctrl),
         "alt" => Some(Mod::Alt),
+        "shift" => Some(Mod::Shift),
         _ => None,
     }
 }
